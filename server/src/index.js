@@ -9,8 +9,11 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'] // Headers permitidos
 };
 
+const http = require('http');
+
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use('/', rout);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

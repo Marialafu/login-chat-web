@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import {
 	StyledRegisterContainer,
 	StyledRegisterOptions,
@@ -6,26 +5,14 @@ import {
 } from './register.styles';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../../lib/config/firebase.config';
-import { useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
-import { v4 } from 'uuid';
-
+import { useNavigate } from 'react-router-dom';
 const Register = () => {
-	const { setUser } = useContext(AuthContext);
-
+	const navigate = useNavigate();
 	return (
 		<>
 			<h1>REGISTER</h1>
 			<StyledRegisterContainer
-				onSubmit={event =>
-					handleSubmit(
-						event,
-						event.target.name.value,
-						event.target.email.value,
-						event.target.password.value,
-						setUser
-					)
-				}
+				onSubmit={event => handleSubmit(event, navigate)}
 			>
 				<StyledRegisterOptions>
 					<StyledTitle>NAME</StyledTitle>
@@ -39,32 +26,23 @@ const Register = () => {
 					<StyledTitle>PASSWORD</StyledTitle>
 					<input name='password' type='text' />
 				</StyledRegisterOptions>
-				<Link to='/loginHome'>
-					<button type='submit'>REGISTER</button>
-				</Link>
+				<button type='submit'>REGISTER</button>
 			</StyledRegisterContainer>
-			<Link to='/login'>
-				<h5>already have account? LOGIN</h5>
-			</Link>
 		</>
 	);
 };
 
-const handleSubmit = async (e, name, email, password, setUser) => {
+const handleSubmit = async (event, navigate) => {
 	//que pasa si quiero poner un nombre
-	e.preventDefault();
-	const registerData = {
-		id: v4(),
-		displayName: name,
-		email,
-		password
-	};
-	console.log(registerData);
+	event.preventDefault();
+	const formData = event.target;
+	const email = formData.email.value;
+	const password = formData.password.value;
 
 	//const { email, password } = registerData;
 	try {
 		await createUserWithEmailAndPassword(auth, email, password);
-		setUser({ ...registerData });
+		navigate('/home');
 	} catch (err) {
 		console.log(err);
 	}

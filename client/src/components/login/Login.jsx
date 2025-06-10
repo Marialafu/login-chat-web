@@ -5,13 +5,12 @@ import {
 	StyledTitle
 } from './login.styles';
 import { auth } from '../../lib/config/firebase.config';
-import { useContext, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 	const [error, setError] = useState(null);
-	const { setUser } = useContext(AuthContext);
+	const navigate = useNavigate();
 	return (
 		<>
 			<h1>LOGIN</h1>
@@ -22,7 +21,7 @@ const Login = () => {
 						event.target.email.value,
 						event.target.password.value,
 						setError,
-						setUser
+						navigate
 					)
 				}
 			>
@@ -37,26 +36,19 @@ const Login = () => {
 				</StyledLoginOptions>
 				<button type='submit'>LOGIN</button>
 			</StyledLoginContainer>
-			<Link to='/register'>
-				<h5>do not have account? REGISTER</h5>
-			</Link>
 		</>
 	);
 };
 
-const handleSubmit = async (e, email, password, setError, setUser) => {
+const handleSubmit = async (e, email, password, setError, navigate) => {
 	e.preventDefault();
-	const loginData = {
-		email,
-		password
-	};
 	//const { email, password } = loginData;
 	try {
-		await signInWithEmailAndPassword(auth, { ...loginData });
-		//setUser()
+		await signInWithEmailAndPassword(auth, email, password);
+		navigate('/home');
 	} catch (err) {
-		setError('*Invalid email');
-		console.log('invalid');
+		//setError('*Invalid email');
+		console.log(err);
 	}
 };
 
