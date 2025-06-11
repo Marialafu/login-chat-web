@@ -28,8 +28,9 @@ io.on('connection', client => {
   client.on('user-connected', user => {
     if (usersConected.includes(user.email)) return;
     usersConected.push(user.email);
-    io.emit('users-connected', usersConected);
   });
+
+  io.emit('users-connected', usersConected);
 
   client.on('client-message', data => {
     io.emit('server-message', {
