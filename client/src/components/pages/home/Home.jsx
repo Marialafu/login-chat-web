@@ -14,14 +14,6 @@ const Home = () => {
 	const [messageList, setMessageList] = useState([]);
 
 	useEffect(() => {
-		socket.on('users-connected', usersConnected => {
-			console.log(usersConnected);
-		});
-
-		return () => socket.off('users-connected');
-	}, []);
-
-	useEffect(() => {
 		if (!user) return;
 		socket.emit('user-connected', { email: user.email });
 	}, [user]);
@@ -33,6 +25,14 @@ const Home = () => {
 
 		return () => socket.off('server-message', serverMessage);
 	}, [messageList]);
+
+	useEffect(() => {
+		socket.on('users-connected', usersConnected => {
+			console.log(usersConnected);
+		});
+
+		return () => socket.off('users-connected');
+	}, [user]);
 
 	return (
 		<>
