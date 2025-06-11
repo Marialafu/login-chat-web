@@ -2,7 +2,6 @@ import { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../../contexts/AuthContext';
 import {
 	StyledConnectedMessage,
-	StyledDisconnectedMessage,
 	StyledMessage,
 	StyledTitleContainer
 } from './home.styles';
@@ -12,55 +11,59 @@ import { v4 } from 'uuid';
 
 const Home = () => {
 	const { user } = useContext(AuthContext);
-	const [isConnected, setIsConnected] = useState(false);
 	const [messageList, setMessageList] = useState([]);
 
 	useEffect(() => {
-		socket.on('connect', () => setIsConnected(true));
-		socket.on('server-message', serverData =>
-			serverMessage(messageList, setMessageList, serverData)
-		);
+		socket.on('users-connected', usersConnected => {
+			console.log(usersConnected);
+		});
+
+		return () => socket.off('users-connected');
+	}, []);
+
+	useEffect(() => {
+		if (!user) return;
+		socket.emit('user-connected', { email: user.email });
+	}, [user]);
+
+	useEffect(() => {
+		socket.on('server-message', serverData => {
+			return serverMessage(messageList, setMessageList, serverData);
+		});
 
 		return () => socket.off('server-message', serverMessage);
-	}, []);
+	}, [messageList]);
 
 	return (
 		<>
 			<StyledTitleContainer>
 				<h2>Bienvenido {user?.email}</h2>
 			</StyledTitleContainer>
-			<form onSubmit={event => sendMessage(event)}>
+			<form onSubmit={event => sendMessage(event, user)}>
 				<input type='text' name='message' />
 				<button type='submit'>ENVIAR</button>
 			</form>
 			<ul>
-				{isConnected && (
-					<StyledConnectedMessage>
-						{user?.email} is connected
-					</StyledConnectedMessage>
+				{socket.connected && (
+					<StyledConnectedMessage>you are connected</StyledConnectedMessage>
 				)}
 				{messageList.map(message => (
 					<StyledMessage key={v4()}>
-						{user?.email}: {message}
+						{message.user.email}: {message.message}
 					</StyledMessage>
 				))}
-				{!isConnected && (
-					<StyledDisconnectedMessage>
-						{user?.email} has disconnected
-					</StyledDisconnectedMessage>
-				)}
 			</ul>
 			<LogOut />
 		</>
 	);
 };
 
-const sendMessage = event => {
+const sendMessage = (event, user) => {
 	event.preventDefault();
 	const eventFile = event.target;
 	const message = eventFile.message.value;
 
-	socket.emit('client-message', message);
+	socket.emit('client-message', { message: message, user: user });
 };
 
 const serverMessage = (messageList, setMessageList, serverData) => {

@@ -47,7 +47,7 @@ const handleSubmit = async (e, email, password, setError, navigate) => {
 		await signInWithEmailAndPassword(auth, email, password);
 		navigate('/home');
 	} catch (err) {
-		//setError('*Invalid email');
+		setError('*Invalid user');
 		console.log(err);
 	}
 };
