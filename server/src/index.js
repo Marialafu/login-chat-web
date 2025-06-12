@@ -23,6 +23,7 @@ const io = require('socket.io')(server, { cors: corsOptions });
 const usersConected = [];
 
 io.on('connection', client => {
+  
   console.log(`usuario conectado`);
 
   client.on('user-connected', user => {
