@@ -17,6 +17,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use('/', usersRoutes);
+app.use('/api/messages/', usersRoutes)
 
 const io = require('socket.io')(server, { cors: corsOptions });
 
@@ -37,7 +38,7 @@ io.on('connection', client => {
     io.emit('server-message', {
       message: data.message,
       user: data.user,
-      id: v4()
+      date: new Date()
     });
   });
 });

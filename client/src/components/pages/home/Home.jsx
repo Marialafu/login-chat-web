@@ -8,10 +8,11 @@ import {
 import LogOut from '../../logout/LogOut';
 import socket from '../../../lib/config/socket';
 import { v4 } from 'uuid';
+import { saveBackUpMessages } from '../../../lib/utils/api';
 
 const Home = () => {
 	const { user } = useContext(AuthContext);
-	const [messageList, setMessageList] = useState([]);
+	const [messagesList, setMessagesList] = useState([]);
 
 	useEffect(() => {
 		if (!user) return;
@@ -20,11 +21,13 @@ const Home = () => {
 
 	useEffect(() => {
 		socket.on('server-message', serverData => {
-			return serverMessage(messageList, setMessageList, serverData);
+			return serverMessage(messagesList, setMessagesList, serverData);
 		});
+		saveBackUpMessages(messagesList);
+		console.log(messagesList);
 
 		return () => socket.off('server-message', serverMessage);
-	}, [messageList]);
+	}, [messagesList]);
 
 	useEffect(() => {
 		socket.on('users-connected', usersConnected => {
@@ -47,7 +50,7 @@ const Home = () => {
 				{socket.connected && (
 					<StyledConnectedMessage>you are connected</StyledConnectedMessage>
 				)}
-				{messageList.map(message => (
+				{messagesList.map(message => (
 					<StyledMessage key={v4()}>
 						{message.user.email}: {message.message}
 					</StyledMessage>
